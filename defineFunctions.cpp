@@ -1,13 +1,12 @@
 void defineQuantitiesOfInterest (ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void> & f) {
   //"one" quantity. This is a dummy quantity that is used, in data, as a per-event weight when filling histograms
-  f = f.Define("zero", "return 0");
   f = f.Define("one", "return 1");
 };
 
 class Histogrammer {
 
 public:
-  //initialized histograms to be produced as public members here
+  //initialize histograms to be produced as public members here
   ROOT::RDF::RResultPtr<TH1D> h_CMS_hgg_mass;
 };
 

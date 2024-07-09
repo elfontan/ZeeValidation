@@ -1,4 +1,4 @@
-void DrawVariable(TString VAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMIN,float XMAX,TString XTITLE,bool isINT,int XNDIV,bool PRINT)
+void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMIN,float XMAX,TString XTITLE,bool isINT,int XNDIV,bool PRINT)
 {
   gROOT->ForceStyle();  
   //gROOT->SetBatch(kTRUE); //kTRUE ---> histos are not showed while drawn. You can avoid crashes with this
@@ -30,39 +30,33 @@ void DrawVariable(TString VAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMI
     "DYToLL_13TeV_UntaggedTag_MCSmearLowR9EBRhoDown01sigma",
     "DYToLL_13TeV_UntaggedTag_MCSmearLowR9EERhoUp01sigma",
     "DYToLL_13TeV_UntaggedTag_MCSmearLowR9EERhoDown01sigma",
-    
   };
-  float LUMI(41500);
+
   TFile *inf[(int)SAMPLE.size()];
   TH1F  *h[(int)SAMPLE.size()];
 
-  TCanvas *can = new TCanvas("DataVsMC_"+VAR+CAT,"DataVsMC_"+VAR+CAT,800,700);
+  TCanvas *can = new TCanvas("DataVsMC_"+VAR+"_"+YEAR+"_"+CAT,"DataVsMC_"+VAR+"_"+YEAR+"_"+CAT,800,700);
   can->SetSupportGL(true); //support transparency
-  //can->SetRightMargin(0.15);
-
+  
   for(int i=0;i<(int)SAMPLE.size();i++) {
-    inf[i] = TFile::Open("../histos"+CAT+"/makeHistos_output_"+SAMPLE.at(i)+CAT+".root");
+    inf[i] = TFile::Open("../histos_"+YEAR+"/makeHistos_output_"+SAMPLE.at(i)+"_"+YEAR+".root");
     if (CAT == "") h[i] = (TH1F*)inf[i]->Get(VAR);
-    else h[i] = (TH1F*)inf[i]->Get(VAR+CAT);
+    else h[i] = (TH1F*)inf[i]->Get(VAR+"_"+YEAR+"_"+CAT);
     if (!h[i]) {
       cout<<"Histogram does not exist !!!"<<endl;
       break;
     } 
     h[i]->SetDirectory(0);
-    //h[i]->Sumw2();
     h[i]->Rebin(REBIN);
     h[i]->SetLineWidth(1);
     h[i]->SetLineColor(kBlack);
-    //if (i > 0) h[i]->Scale(h[0]->Integral()/h[i]->Integral()); //THIS IS TO BE REVISED, UNDERSTAND HOW TO PROPERLY SCALE
-    
     inf[i]->Close();
   }
   
   h[0]->SetLineWidth(2);//data
   h[1]->SetFillColor(kAzure+1);//Zee
-  //h[1]->SetLineColor(kAzure+1);//Zee
   
-  cout<<"======== "<<VAR+CAT<<" ====================="<<endl;
+  cout<<"======== "<<VAR+"_"+YEAR+"_"+CAT<<" ====================="<<endl;
   cout<<"Data events:  "<<h[0]->Integral()<<endl;
   cout<<"Zee events:  "<<h[1]->Integral()<<endl;
   
@@ -72,30 +66,21 @@ void DrawVariable(TString VAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMI
   TH1F * uncBandRatio_stat = (TH1F*)h[1]->Clone();
   TH1F * uncBandRatio = (TH1F*)h[1]->Clone();
   for (int ibin = 0; ibin < h[1]->GetSize()-2; ibin++){
-    //cout << "looking at bin " << ibin+1 << endl;
     float binContentUp = pow(h[1]->GetBinError(ibin+1),2);
     float binContentDown = pow(h[1]->GetBinError(ibin+1),2);
     uncBand_stat->SetBinError(ibin+1, (sqrt(binContentUp) + sqrt(binContentDown))/2.);
     uncBandRatio_stat->SetBinContent(ibin+1, 1.);
     uncBandRatio_stat->SetBinError(ibin+1,((sqrt(binContentUp) + sqrt(binContentDown))/2.)/h[1]->GetBinContent(ibin+1)); 
     for (int ihisto = iSyst; ihisto < (int)SAMPLE.size(); ihisto++){
-      //cout << "dealing with histo " << SAMPLE.at(ihisto) << endl;
-      //cout << "nominal " << h[1]->GetBinContent(ibin+1) << endl;
-      //cout << "shift " << h[ihisto]->GetBinContent(ibin+1) << endl;
-      //cout << "factor " << pow((h[1]->GetBinContent(ibin+1)-h[ihisto]->GetBinContent(ibin+1)),2) << endl;
-      //cout << "bin content " << h[1]->GetBinContent(ibin+1) << endl;
       if (h[1]->GetBinContent(ibin+1) <= h[ihisto]->GetBinContent(ibin+1)) binContentUp += pow((h[1]->GetBinContent(ibin+1)-h[ihisto]->GetBinContent(ibin+1)),2); //sum quads of differences between nominal MC and shifts
       else binContentDown += pow((h[1]->GetBinContent(ibin+1)-h[ihisto]->GetBinContent(ibin+1)),2);
     }
     binContentUp = sqrt(binContentUp);
     binContentDown = sqrt(binContentDown);
     float binContent = (binContentUp + binContentDown)/2.;
-    //cout << "uncertainty " << binContent << endl;
     uncBand->SetBinError(ibin+1, binContent);
     uncBandRatio->SetBinContent(ibin+1,1);
     uncBandRatio->SetBinError(ibin+1,binContent/h[1]->GetBinContent(ibin+1));
-    //cout << "relative uncertainty " << binContent/h[1]->GetBinContent(ibin+1)*100. << " %" << endl;
-    //if (ibin > -1) break;
   }
   uncBand_stat->SetFillColorAlpha(kOrange+2, 0.80);
   uncBand->SetFillColorAlpha(kOrange+1, 0.80);
@@ -160,7 +145,6 @@ void DrawVariable(TString VAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMI
 
   TPad *pad = new TPad("pad","pad",0.,0.,1.,1.);
   pad->SetTopMargin(0.77);
-  //pad->SetRightMargin(0.15);
   pad->SetFillColor(0);
   pad->SetFillStyle(0);
   pad->Draw();
@@ -200,10 +184,10 @@ void DrawVariable(TString VAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMI
   CMS.SetTextFont(52);
   CMS.DrawLatexNDC(0.31,0.87,"Preliminary");
   TString year;
-  if (CAT.Index("pre") != -1) year = "2016_preVFP";
-  else if (CAT.Index("post") != -1) year = "2016_postVFP";
-  else if (CAT.Index("2017") != -1) year = "2017";
-  else if (CAT.Index("2018") != -1) year = "2018";
+  if (YEAR.Index("pre") != -1) year = "2016_preVFP";
+  else if (YEAR.Index("post") != -1) year = "2016_postVFP";
+  else if (YEAR.Index("2017") != -1) year = "2017";
+  else if (YEAR.Index("2018") != -1) year = "2018";
   else year = "XXX";
   TLatex lumi;
   lumi.SetTextSize(0.04);
@@ -228,7 +212,7 @@ void DrawVariable(TString VAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMI
 
   
   if (PRINT) {//save plots
-    can->SaveAs(VAR+CAT+".pdf");
-    can->SaveAs(VAR+CAT+".png");
+    can->SaveAs(VAR+"_"+YEAR+"_"+CAT+".pdf");
+    can->SaveAs(VAR+"_"+YEAR+"_"+CAT+".png");
   }
 }
