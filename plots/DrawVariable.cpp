@@ -1,9 +1,9 @@
+#include "DrawVariable.h"
+
 void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMIN,float XMAX,TString XTITLE,bool isINT,int XNDIV,bool PRINT)
 {
   gROOT->ForceStyle();  
   //gROOT->SetBatch(kTRUE); //kTRUE ---> histos are not showed while drawn. You can avoid crashes with this
-
-  map<TString,float> lumis = {{"2016_preVFP",19.5}, {"2016_postVFP",16.8}, {"2017",41.5}, {"2018",59.8}};
   
   std::vector<TString> SAMPLE = {
     "Data_13TeV_UntaggedTag",
