@@ -2,8 +2,8 @@
 
 void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int REBIN,float XMIN,float XMAX,TString XTITLE,bool isINT,int XNDIV,bool PRINT)
 {
-  gROOT->ForceStyle();  
-  //gROOT->SetBatch(kTRUE); //kTRUE ---> histos are not showed while drawn. You can avoid crashes with this
+  gROOT->ForceStyle();
+  gROOT->SetBatch(kTRUE); //kTRUE ---> histos are not showed while drawn. You can avoid crashes with this
   
   std::vector<TString> SAMPLE = {
     "Data_13TeV_UntaggedTag",
@@ -138,7 +138,7 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   h[1]->Draw("hist same");
   uncBand_stat->Draw("same E2");
   uncBand->Draw("same E2");
-  h[0]->Draw("sames E");
+  h[0]->Draw("sames EX0");
   
   leg->Draw();
   gPad->RedrawAxis();
@@ -159,6 +159,7 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   hRatio->GetXaxis()->SetTitle(XTITLE);
   hRatio->GetXaxis()->SetRangeUser(XMIN,XMAX);
   //properly set range so that uncertainty bands are always contained in canvas
+  /*
   float mm = 0.;
   for (int i = 0; i < uncBand->GetSize()-2; i++) {
     float mym = uncBandRatio->GetBinContent(i+1) + uncBandRatio->GetBinError(i+1);
@@ -166,16 +167,20 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   }
   if (abs(mm-1)>0.4) mm = 0.4;
   hRatio->GetYaxis()->SetRangeUser(1-1.25*abs(1-mm),1+1.25*abs(1-mm));
+  */
+  if (CAT.Index("ETg") != -1) hRatio->GetYaxis()->SetRangeUser(0.4, 1.6);
+  else if (CAT.Index("ETl") != -1) hRatio->GetYaxis()->SetRangeUser(0.8, 1.2);
+  else hRatio->GetYaxis()->SetRangeUser(0.4, 1.6);
   hRatio->GetYaxis()->SetNdivisions(505);
   hRatio->GetXaxis()->SetNdivisions(XNDIV);
   hRatio->GetYaxis()->SetLabelSize(0.03);
   if (isINT) {
     hRatio->GetXaxis()->CenterLabels();
   }
-  hRatio->Draw("same");
+  hRatio->Draw("same EX0");
   uncBandRatio_stat->Draw("same E2");
   uncBandRatio->Draw("same E2");
-  hRatio->Draw("same");
+  hRatio->Draw("same EX0");
   
   TLatex CMS;
   CMS.SetTextFont(61);

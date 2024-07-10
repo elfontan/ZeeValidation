@@ -58,7 +58,7 @@ void setTDRStyle() {
   //tdrStyle->SetErrorX(0.);
   
   tdrStyle->SetMarkerStyle(20);
-
+  tdrStyle->SetMarkerSize(0.8);
 //For the fit/function:
   //tdrStyle->SetOptFit(0010); // display fit parameters values only
   tdrStyle->SetOptFit(0000);
