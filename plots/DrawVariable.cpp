@@ -127,10 +127,16 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   }
   hAux->GetXaxis()->SetRangeUser(XMIN,XMAX);
   //compute bin width
-  int nbins = h[1]->GetSize()-2;
-  int xmin = h[1]->GetBinLowEdge(1); int xmax = h[1]->GetBinLowEdge(nbins+1);
-  float binwidth = (xmax - xmin)/(float(nbins));
-  hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.1f GeV",binwidth));
+  float binwidth;
+  int n = binwOOM(h[1], binwidth);
+  string unit;
+  if (XTITLE.Index("GeV")!=-1) unit = "GeV";
+  else unit = "";
+  if (n==0) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.0f %s",binwidth, unit.c_str()));
+  else if (n==-1) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.1f %s",binwidth, unit.c_str()));
+  else if (n==-2) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.2f %s",binwidth, unit.c_str()));
+  else if (n==-3) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.3f %s",binwidth, unit.c_str()));
+  else hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.4f %s",binwidth, unit.c_str()));
   hAux->GetXaxis()->SetTitle("");
   hAux->GetXaxis()->SetLabelSize(0.0);
   hAux->Draw();
