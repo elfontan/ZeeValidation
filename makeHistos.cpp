@@ -16,10 +16,10 @@ void makeHistos(std::string_view file, std::string_view tree, bool isdata, TStri
 
   ROOT::RDataFrame d0(tree, string_view(u)); // Interface to TTree and TChain
   //Define dataframes for each selection
-  auto f_ETl80_EBEB_diphoBDTg0p3 = d0.Filter("(leadptom*CMS_hgg_mass < 80 && subleadptom*CMS_hgg_mass < 80) && (abs(leadeta)<1.5 && abs(subleadeta)<1.5) && Tran_DiphotonMVA_self > 0.3");
-  auto f_ETg80_EBEB_diphoBDTg0p3 = d0.Filter("(leadptom*CMS_hgg_mass > 80 && subleadptom*CMS_hgg_mass > 80) && (abs(leadeta)<1.5 && abs(subleadeta)<1.5) && Tran_DiphotonMVA_self > 0.3");
-  auto f_ETl80_notEBEB_diphoBDTg0p3 = d0.Filter("(leadptom*CMS_hgg_mass < 80 && subleadptom*CMS_hgg_mass < 80) && !(abs(leadeta)<1.5 && abs(subleadeta)<1.5) && (abs(leadeta)<2.1 && abs(subleadeta)<2.1) && Tran_DiphotonMVA_self > 0.3");
-  auto f_ETg80_notEBEB_diphoBDTg0p3 = d0.Filter("(leadptom*CMS_hgg_mass > 80 && subleadptom*CMS_hgg_mass > 80) && !(abs(leadeta)<1.5 && abs(subleadeta)<1.5) && (abs(leadeta)<2.1 && abs(subleadeta)<2.1) && Tran_DiphotonMVA_self > 0.3");
+  auto f_ETl80_EBEB_diphoBDTg0p3 = d0.Filter("(CMS_hgg_mass > 80 && CMS_hgg_mass < 100) && (leadptom*CMS_hgg_mass < 80 && subleadptom*CMS_hgg_mass < 80) && (abs(leadeta)<1.5 && abs(subleadeta)<1.5) && Tran_DiphotonMVA_self > 0.3");
+  auto f_ETg80_EBEB_diphoBDTg0p3 = d0.Filter("(CMS_hgg_mass > 80 && CMS_hgg_mass < 100) && (leadptom*CMS_hgg_mass > 80 && subleadptom*CMS_hgg_mass > 80) && (abs(leadeta)<1.5 && abs(subleadeta)<1.5) && Tran_DiphotonMVA_self > 0.3");
+  auto f_ETl80_notEBEB_diphoBDTg0p3 = d0.Filter("(CMS_hgg_mass > 80 && CMS_hgg_mass < 100) && (leadptom*CMS_hgg_mass < 80 && subleadptom*CMS_hgg_mass < 80) && !(abs(leadeta)<1.5 && abs(subleadeta)<1.5) && (abs(leadeta)<2.1 && abs(subleadeta)<2.1) && Tran_DiphotonMVA_self > 0.3");
+  auto f_ETg80_notEBEB_diphoBDTg0p3 = d0.Filter("(CMS_hgg_mass > 80 && CMS_hgg_mass < 100) && (leadptom*CMS_hgg_mass > 80 && subleadptom*CMS_hgg_mass > 80) && !(abs(leadeta)<1.5 && abs(subleadeta)<1.5) && (abs(leadeta)<2.1 && abs(subleadeta)<2.1) && Tran_DiphotonMVA_self > 0.3");
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   ///////// DEFINE QUANTITIES OF INTEREST TO BE PLOTTED LATER ///////////////////////////////
