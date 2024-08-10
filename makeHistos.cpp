@@ -35,16 +35,16 @@ void makeHistos(std::string_view file, std::string_view tree, bool isdata, TStri
   
   //book histogrammers and define the wanted histograms
   Histogrammer H_ETl80_EBEB_diphoBDTg0p3, H_ETg80_EBEB_diphoBDTg0p3, H_ETl80_notEBEB_diphoBDTg0p3, H_ETg80_notEBEB_diphoBDTg0p3;
-  defineHistos(H_ETl80_EBEB_diphoBDTg0p3, f_ETl80_EBEB_diphoBDTg0p3, isdata);
-  defineHistos(H_ETg80_EBEB_diphoBDTg0p3, f_ETg80_EBEB_diphoBDTg0p3, isdata);
-  defineHistos(H_ETl80_notEBEB_diphoBDTg0p3, f_ETl80_notEBEB_diphoBDTg0p3, isdata);
-  defineHistos(H_ETg80_notEBEB_diphoBDTg0p3, f_ETg80_notEBEB_diphoBDTg0p3, isdata);
+  H_ETl80_EBEB_diphoBDTg0p3.defineHistos(f_ETl80_EBEB_diphoBDTg0p3, isdata);
+  H_ETg80_EBEB_diphoBDTg0p3.defineHistos(f_ETg80_EBEB_diphoBDTg0p3, isdata);
+  H_ETl80_notEBEB_diphoBDTg0p3.defineHistos(f_ETl80_notEBEB_diphoBDTg0p3, isdata);
+  H_ETg80_notEBEB_diphoBDTg0p3.defineHistos(f_ETg80_notEBEB_diphoBDTg0p3, isdata);
   
   TFile *outputfile = new TFile( "makeHistos_output_" + TString(tree) + "_" + year +".root", "RECREATE" );
-  writeHistos(H_ETl80_EBEB_diphoBDTg0p3, year+"_ETl80_EBEB_diphoBDTg0p3");
-  writeHistos(H_ETg80_EBEB_diphoBDTg0p3, year+"_ETg80_EBEB_diphoBDTg0p3");
-  writeHistos(H_ETl80_notEBEB_diphoBDTg0p3, year+"_ETl80_notEBEB_diphoBDTg0p3");
-  writeHistos(H_ETg80_notEBEB_diphoBDTg0p3, year+"_ETg80_notEBEB_diphoBDTg0p3");
+  H_ETl80_EBEB_diphoBDTg0p3.writeHistos(year+"_ETl80_EBEB_diphoBDTg0p3");
+  H_ETg80_EBEB_diphoBDTg0p3.writeHistos(year+"_ETg80_EBEB_diphoBDTg0p3");
+  H_ETl80_notEBEB_diphoBDTg0p3.writeHistos(year+"_ETl80_notEBEB_diphoBDTg0p3");
+  H_ETg80_notEBEB_diphoBDTg0p3.writeHistos(year+"_ETg80_notEBEB_diphoBDTg0p3");
   outputfile->Close();
   delete outputfile;
 
