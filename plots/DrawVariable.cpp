@@ -6,14 +6,15 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   gROOT->SetBatch(kTRUE); //kTRUE ---> histos are not showed while drawn. You can avoid crashes with this
   
   std::vector<TString> SAMPLE = {
-    "Data_13TeV_UntaggedTag",
-    "DYToLL_13TeV_UntaggedTag",
-    //"DYToLL_13TeV_UntaggedTag_SigmaEOverEShiftUp01sigma",
-    //"DYToLL_13TeV_UntaggedTag_SigmaEOverEShiftDown01sigma",
+    "Data_13TeV_UntaggedTag_0",
+    "DYToLL_13TeV_UntaggedTag_0",
+    "DYToLL_13TeV_UntaggedTag_0_SigmaEOverEShiftUp01sigma",
+    "DYToLL_13TeV_UntaggedTag_0_SigmaEOverEShiftDown01sigma",
+    "DYToLL_13TeV_UntaggedTag_0_MvaShiftUp01sigma",
+    "DYToLL_13TeV_UntaggedTag_0_MvaShiftDown01sigma",
+    /*
     "DYToLL_13TeV_UntaggedTag_MCScaleNonLinearityUp",
     "DYToLL_13TeV_UntaggedTag_MCScaleNonLinearityDown",
-    "DYToLL_13TeV_UntaggedTag_MvaShiftUp01sigma",
-    "DYToLL_13TeV_UntaggedTag_MvaShiftDown01sigma",
     "DYToLL_13TeV_UntaggedTag_MCScaleHighR9EBUp01sigma",
     "DYToLL_13TeV_UntaggedTag_MCScaleHighR9EBDown01sigma",
     "DYToLL_13TeV_UntaggedTag_MCScaleHighR9EEUp01sigma",
@@ -30,6 +31,7 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
     "DYToLL_13TeV_UntaggedTag_MCSmearLowR9EBRhoDown01sigma",
     "DYToLL_13TeV_UntaggedTag_MCSmearLowR9EERhoUp01sigma",
     "DYToLL_13TeV_UntaggedTag_MCSmearLowR9EERhoDown01sigma",
+    */
   };
 
   TFile *inf[(int)SAMPLE.size()];
@@ -39,7 +41,10 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   can->SetSupportGL(true); //support transparency
   
   for(int i=0;i<(int)SAMPLE.size();i++) {
-    inf[i] = TFile::Open("../histos_"+YEAR+"/makeHistos_output_"+SAMPLE.at(i)+"_"+YEAR+".root");
+    inf[i] = TFile::Open("../histos_2018_updatedZeeDY_EB/"+SAMPLE.at(i)+"_"+YEAR+".root");
+    //inf[i] = TFile::Open("../histos_2018_updatedZeeDY_EELowSubleadEt/"+SAMPLE.at(i)+"_"+YEAR+".root");
+    //inf[i] = TFile::Open("../histos_EE/"+SAMPLE.at(i)+"_"+YEAR+".root");
+    //inf[i] = TFile::Open("../histos_"+YEAR+"/makeHistos_output_"+SAMPLE.at(i)+"_"+YEAR+".root");
     if (CAT == "") h[i] = (TH1F*)inf[i]->Get(VAR);
     else h[i] = (TH1F*)inf[i]->Get(VAR+"_"+YEAR+"_"+CAT);
     if (!h[i]) {
@@ -54,7 +59,7 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   }
   
   h[0]->SetLineWidth(2);//data
-  h[1]->SetFillColor(kAzure+1);//Zee
+  h[1]->SetFillColor(kBlue-10);//Zee
   
   cout<<"======== "<<VAR+"_"+YEAR+"_"+CAT<<" ====================="<<endl;
   cout<<"Data events:  "<<h[0]->Integral()<<endl;
@@ -82,15 +87,15 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
     uncBandRatio->SetBinContent(ibin+1,1);
     uncBandRatio->SetBinError(ibin+1,binContent/h[1]->GetBinContent(ibin+1));
   }
-  uncBand_stat->SetFillColorAlpha(kOrange+2, 0.80);
-  uncBand->SetFillColorAlpha(kOrange+1, 0.80);
+  uncBand_stat->SetFillColorAlpha(kAzure+1, 0.80);
+  uncBand->SetFillColorAlpha(kAzure+1, 0.80);
   uncBand_stat->SetMarkerSize(0);
   uncBand->SetMarkerSize(0);
   uncBand_stat->Scale(h[0]->Integral()/uncBand_stat->Integral());
   uncBand->Scale(h[0]->Integral()/uncBand->Integral());
-  uncBandRatio_stat->SetFillColorAlpha(kOrange+2, 0.80);
+  uncBandRatio_stat->SetFillColorAlpha(kAzure+1, 0.80);
   uncBandRatio_stat->SetMarkerSize(0);
-  uncBandRatio->SetFillColorAlpha(kOrange+1, 0.80);
+  uncBandRatio->SetFillColorAlpha(kAzure+1, 0.80);
   uncBandRatio->SetMarkerSize(0);
   
   TH1F *hRatio = (TH1F*)h[0]->Clone("Ratio");
@@ -110,27 +115,51 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   TH1F *hAux = (TH1F*)h[0]->Clone("aux");
   hAux->Reset();
   hAux->GetXaxis()->SetNdivisions(XNDIV);
-  hAux->GetYaxis()->SetMaxDigits(4); //force scientific notation on y axis after 3 digit numbers
-  if (isINT) {
-    hAux->GetXaxis()->CenterLabels();
-  }
+  hAux->GetYaxis()->SetMaxDigits(4); //force scientific notation on y axis after 3 digit number
+
   //properly set range so that uncertainty bands are always contained in canvas
   float m = 0.;
   for (int i = 0; i < uncBand->GetSize()-2; i++) {
     float mym = uncBand->GetBinContent(i+1) + uncBand->GetBinError(i+1);
     if (mym > m) m = mym;
   }
-  hAux->GetYaxis()->SetRangeUser(0.5,1.1*m);
+  hAux->GetYaxis()->SetRangeUser(0.5,1.8*m);
   if (LOG) {
     gPad->SetLogy(); 
-    hAux->GetYaxis()->SetRangeUser(0.5,2*m);
+    hAux->GetYaxis()->SetRangeUser(0.5,4000*m);
   }
   hAux->GetXaxis()->SetRangeUser(XMIN,XMAX);
+
   //compute bin width
-  int nbins = h[1]->GetSize()-2;
-  int xmin = h[1]->GetBinLowEdge(1); int xmax = h[1]->GetBinLowEdge(nbins+1);
-  float binwidth = (xmax - xmin)/(float(nbins));
-  hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.1f GeV",binwidth));
+  float binwidth;
+  float xmin;
+  float xmax;
+  float nbins;
+  xmin = hAux->GetXaxis()->GetXmin();
+  xmax = hAux->GetXaxis()->GetXmax();
+  nbins = hAux->GetNbinsX();
+  binwidth = (xmax - xmin)/(float(nbins));
+  //int n = binwOOM(h[1], binwidth);
+  string unit;
+  if (XTITLE.Index("GeV")!=-1) unit = "GeV";
+  else unit = "";
+  //if (n==0) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.0f %s",binwidth, unit.c_str()));
+  //else if (n==-1) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.1f %s",binwidth, unit.c_str()));
+  //else if (n==-2) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.2f %s",binwidth, unit.c_str()));
+  //else if (n==-3) hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.3f %s",binwidth, unit.c_str()));
+  //else hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.4f %s",binwidth, unit.c_str()));
+  if (VAR.CompareTo("dipho_pt") == 0 || VAR.CompareTo("CMS_hgg_mass") == 0) {
+    hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.1f GeV",binwidth));
+  } else if (VAR.CompareTo("dipho_lead_sigmaEoE") == 0 || VAR.CompareTo("dipho_sublead_sigmaEoE") == 0 || VAR.CompareTo("sigmaMrvoM") == 0 || VAR.CompareTo("sigmaMwvoM") == 0) {
+    hAux->GetYaxis()->SetTitle("Events / 0.002");
+  } else if (VAR.CompareTo("dipho_lead_sieie") == 0 || VAR.CompareTo("dipho_sublead_sieie") == 0) {
+    hAux->GetYaxis()->SetTitle("Events / 0.0001");
+  } else if (VAR.CompareTo("dipho_lead_etawidth") == 0 || VAR.CompareTo("dipho_sublead_etawidth") == 0 || VAR.CompareTo("dipho_lead_phiwidth") == 0 || VAR.CompareTo("dipho_sublead_phiwidth") == 0) {
+    hAux->GetYaxis()->SetTitle("Events / 0.001");
+  } else {
+    hAux->GetYaxis()->SetTitle(TString::Format("Events / %1.2f",binwidth));
+  }
+
   hAux->GetXaxis()->SetTitle("");
   hAux->GetXaxis()->SetLabelSize(0.0);
   hAux->Draw();
@@ -168,10 +197,9 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   if (abs(mm-1)>0.4) mm = 0.4;
   hRatio->GetYaxis()->SetRangeUser(1-1.25*abs(1-mm),1+1.25*abs(1-mm));
   */
-  if (CAT.Index("ETg") != -1) hRatio->GetYaxis()->SetRangeUser(0.4, 1.6);
-  else if (CAT.Index("ETl") != -1) hRatio->GetYaxis()->SetRangeUser(0.8, 1.2);
-  else hRatio->GetYaxis()->SetRangeUser(0.4, 1.6);
-  hRatio->GetYaxis()->SetNdivisions(505);
+
+  hRatio->GetYaxis()->SetRangeUser(0.6, 1.4);
+  hRatio->GetYaxis()->SetNdivisions(202);
   hRatio->GetXaxis()->SetNdivisions(XNDIV);
   hRatio->GetYaxis()->SetLabelSize(0.03);
   if (isINT) {
@@ -185,7 +213,7 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   TLatex CMS;
   CMS.SetTextFont(61);
   CMS.SetTextSize(0.05);
-  CMS.DrawLatexNDC(0.20,0.87,"CMS");
+  CMS.DrawLatexNDC(0.2,0.87,"CMS");
   CMS.SetTextFont(52);
   CMS.DrawLatexNDC(0.31,0.87,"Preliminary");
   TString year;
@@ -197,27 +225,37 @@ void DrawVariable(TString VAR,TString YEAR,TString CAT,bool LOG,int iSyst,int RE
   TLatex lumi;
   lumi.SetTextSize(0.04);
   lumi.SetTextFont(42);
-  lumi.DrawLatexNDC(0.715,0.95, Form("%1.1f fb^{-1} (13 TeV)", lumis[year]));
+  lumi.DrawLatexNDC(0.716,0.95, Form("%1.1f fb^{-1} (13 TeV)", lumis[year]));
 
   TLatex sel;
   sel.SetTextFont(42);
-  TString region;
-  if (CAT.Index("notEBEB") != -1) region = "notEBEB";
-  else region = "EBEB";
-  sel.SetTextSize(0.03);
-  sel.DrawLatexNDC(0.2, 0.8, region);
-  TString ETcut;
-  if (CAT.Index("ETg") != -1) ETcut = "E^{e}_{T} > 80 GeV";
-  else ETcut = "E^{e}_{T} < 80 GeV";
-  sel.DrawLatexNDC(0.2, 0.76, ETcut);
+  sel.SetTextSize(0.035);
+  //TString region;
+  //if (CAT.Index("notEBEB") != -1) region = "notEBEB";
+  //else region = "EBEB";
+  //sel.SetTextSize(0.03);
+  //sel.DrawLatexNDC(0.2, 0.8, region);
+  TString Mcut;
+  Mcut = "m_{ee} = [80, 100] GeV";
+  sel.DrawLatexNDC(0.22, 0.77, Mcut);
   TString BDTcut;
-  if (CAT.Index("BDTg") != -1) BDTcut = "diphotonBDT > 0.3";
-  else BDTcut = "XXXXXX";
-  sel.DrawLatexNDC(0.2, 0.72, BDTcut);
+  //if (CAT.Index("BDTg") != -1) BDTcut = "diphotonBDT > 0.3";
+  //else BDTcut = "XXXXXX";
+  //BDTcut = "Inclusive";
+  BDTcut = "Barrel: |#eta|<1.4442";
+  //BDTcut = "Endcap: |#eta|>1.556";
+  sel.DrawLatexNDC(0.22, 0.71, BDTcut);
 
-  
   if (PRINT) {//save plots
-    can->SaveAs(VAR+"_"+YEAR+"_"+CAT+".pdf");
-    can->SaveAs(VAR+"_"+YEAR+"_"+CAT+".png");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/M80_100_INCLUSIVE/"+VAR+"_"+YEAR+".pdf");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/M80_100_INCLUSIVE/"+VAR+"_"+YEAR+".png");
+    can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/BARREL/"+VAR+"_"+YEAR+".pdf");
+    can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/BARREL/"+VAR+"_"+YEAR+".png");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/ENDCAP/"+VAR+"_"+YEAR+".pdf");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/ENDCAP/"+VAR+"_"+YEAR+".png");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/BARREL_lowEt/"+VAR+"_"+YEAR+".pdf");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/BARREL_lowEt/"+VAR+"_"+YEAR+".png");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/ENDCAP_lowEt/"+VAR+"_"+YEAR+".pdf");
+    //can->SaveAs("/eos/user/e/elfontan/www/Hgg_veryLowMass_AN/ZeeVal/SYST/FIXED_PhoCorrections/ENDCAP_lowEt/"+VAR+"_"+YEAR+".png");
   }
 }

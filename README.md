@@ -7,4 +7,4 @@ Simple framework to skim trees and produce Zee validation plots in the context o
 * `mv makeHistos_output_D* histos_UL2018`
 * `cd plots`
 * `root -l setTDRStyle.C`
-* `.x DrawVariablesAll.cpp(false)`
+* `.x DrawVariablesAll.cpp(true)`
